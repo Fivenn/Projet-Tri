@@ -268,7 +268,7 @@ void demoSort(const char * i_file, const char * o_file){
   unsigned long nb_elem = SU_loadFile(i_file, &values);
 
   SORTALGO(nb_elem, values);
-  
+
   SU_saveFile(o_file, nb_elem, values);
 
   free(values);
