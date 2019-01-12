@@ -1,5 +1,5 @@
 /**
- * @file 
+ * @file
  * @brief Implementation of the V0 of the system project.
  * @warning You should not modifie the current file.
  */
@@ -39,7 +39,7 @@ void projectV0(const char * i_file, const char * o_file, unsigned long nb_split)
     SORTALGO(nb_elem, values);
 
     SU_saveFile(o_file, nb_elem, values);
-    
+
     free(values);
     return;
   }
