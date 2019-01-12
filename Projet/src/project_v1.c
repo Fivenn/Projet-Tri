@@ -121,7 +121,6 @@ void projectV1_sortFiles(unsigned long nb_split, const char ** filenames, const 
       }
     }
     for(cpt = 0; cpt < nb_split; ++cpt){
-
       waitpid(pidTab[cpt],0,0);
     }
 
