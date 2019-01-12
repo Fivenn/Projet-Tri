@@ -93,10 +93,8 @@ void projectV1(const char * i_file, const char * o_file, unsigned long nb_split)
 }
 
 void projectV1_sortFiles(unsigned long nb_split, const char ** filenames, const char ** filenames_sort){
-
-
-    unsigned long cpt = 0;
-
+  printf("%d\n", getpid());
+  unsigned long cpt = 0;
     pid_t pidTab[nb_split-1];
 
     for(cpt = 0; cpt < nb_split; ++cpt){
@@ -111,6 +109,7 @@ void projectV1_sortFiles(unsigned long nb_split, const char ** filenames, const 
         perror("Fork failed");
         exit(1);
       }else if(pidf == 0){
+        sleep(10);
         fprintf(stderr, "Inner sort %lu: Array of %lu elem by %d\n", cpt, nb_elem, getpid());
 
         SORTALGO(nb_elem, values);
