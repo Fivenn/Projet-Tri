@@ -109,7 +109,6 @@ void projectV1_sortFiles(unsigned long nb_split, const char ** filenames, const 
         perror("Fork failed");
         exit(1);
       }else if(pidf == 0){
-        sleep(10);
         fprintf(stderr, "Inner sort %lu: Array of %lu elem by %d\n", cpt, nb_elem, getpid());
 
         SORTALGO(nb_elem, values);
@@ -148,7 +147,7 @@ void projectV1_combMerge(unsigned long nb_split, const char ** filenames_sort, c
   }
 
   for(cpt = 1; cpt < nb_split - 1; ++cpt){
-
+    printf("filename_sort : %s\n previous_name : %s\n, current_name : %s\n\n", filenames_sort[cpt], previous_name, current_name);
     fprintf(stderr, "Merge sort %lu : %s + %s -> %s \n",
 	    cpt,
 	    previous_name,

@@ -21,7 +21,7 @@
 /**********************************/
 
 void projectV0(const char * i_file, const char * o_file, unsigned long nb_split){
-
+  printf("Coucou\n" );
   /* Get number of line to sort */
   int nb_print = 0;
   unsigned long nb_lines = SU_getFileNbLine(i_file);
