@@ -8,6 +8,7 @@
 #include "system_utils.h"
 #include "project_v0.h"
 #include "project_v1.h"
+#include "project_v2.h"
 
 /**
  * @brief Maximum length (in character) for a file name.
@@ -74,6 +75,7 @@ int main(int argc, char ** argv){
   int mode_demoSort      = 0;
   int mode_projectV0     = 0;
   int mode_projectV1     = 0;
+  int mode_projectV2     = 0;
   int mode_demoSortSplit = 0;
   int mode_lineCount     = 0;
   int mode_generation    = 0;
@@ -144,6 +146,12 @@ int main(int argc, char ** argv){
       fprintf(stderr, "Missing parameters: need an output and an input file.\n");
       errflg++;
     }
+  } else if(strcmp(mode, "projectV2") == 0){
+    mode_projectV2 = 1;
+    if(strcmp(i_file, "") == 0 || strcmp(o_file, "") == 0){
+      fprintf(stderr, "Missing parameters: need an output and an input file.\n");
+      errflg++;
+    }
   } else if(strcmp(mode, "test") == 0) {
     mode_test = 1;
   } else if(strcmp(mode, "generation") == 0) {
@@ -195,6 +203,9 @@ int main(int argc, char ** argv){
   } else if(mode_projectV1){
     /* Mode fork sort split */
     projectV1(i_file, o_file, nb_split);
+  } else if(mode_projectV2){
+    /* Mode fork fusion */
+    projectV2(i_file, o_file, nb_split);
   }
 
   /* End */
