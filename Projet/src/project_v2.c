@@ -79,7 +79,22 @@ void projectV2(const char * i_file, const char * o_file, unsigned long nb_split)
   projectV2_sortFiles(nb_split, (const char **) filenames, (const char **) filenames_sort);
 
   /* 3 - Merge (two by two) */
+<<<<<<< HEAD
   projectV2_combMerge(nb_split, (const char **) filenames_sort, (const char *) o_file);
+=======
+  pid_t pidMerge = fork();
+  if (pidMerge == -1){
+    perror("Fail merge error");
+  }else if(pidMerge == 0){
+    unsigned long h = ((nb_split-nb_split%2)/2);
+    projectV2_combMerge(0,h, (const char **) filenames_sort, (const char *) o_file);
+    exit(0);
+  }else{
+    projectV2_combMerge(((nb_split-nb_split%2)/2+1),nb_split, (const char **) filenames_sort, (const char *) o_file);
+    wait(&pidMerge);
+    projectV2_combMerge(((nb_split-nb_split%2)/2+1),nb_split, (const char **) filenames_sort, (const char *) o_file);
+  }
+>>>>>>> b79cc8ccc2667dc4de7204b1fbd0b7cabed563a1
 
   /* 4 - Clear */
   for(cpt = 0; cpt < nb_split; ++cpt){
