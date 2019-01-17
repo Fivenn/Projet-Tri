@@ -227,7 +227,13 @@ void projectV2_combMerge(unsigned long nb_split, const char ** filenames_sort, c
   /* really Last merge */
   nb_print = snprintf(previous_name,
     PROJECT_FILENAME_MAX_SIZE,
-    "/tmp/tmp_split_%d_merge_%lu.txt",pidf, (nb_split - startCt - 2));
+    "/tmp/tmp_split_%d_merge_%lu.txt",pidf, (startCt - 2));
+  if(nb_print >= PROJECT_FILENAME_MAX_SIZE){
+    err(1, "Out of buffer (%s:%d)", __FILE__, __LINE__ );
+  }
+  nb_print = snprintf(current_name,
+    PROJECT_FILENAME_MAX_SIZE,
+    "/tmp/tmp_split_%d_merge_%lu.txt",getpid(), (nb_split - startCt - 2));
   if(nb_print >= PROJECT_FILENAME_MAX_SIZE){
     err(1, "Out of buffer (%s:%d)", __FILE__, __LINE__ );
   }
