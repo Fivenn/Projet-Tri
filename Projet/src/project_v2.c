@@ -77,7 +77,6 @@ void projectV2(const char * i_file, const char * o_file, unsigned long nb_split)
 
   /* 2 - Sort each file */
   projectV2_sortFiles(nb_split, (const char **) filenames, (const char **) filenames_sort);
-
   /* 3 - Merge (two by two) */
   pid_t pidMerge = fork();
   if pidMerge == -1){
@@ -87,6 +86,7 @@ void projectV2(const char * i_file, const char * o_file, unsigned long nb_split)
   }else{
     projectV2_combMerge(((nb_split-nb_split%2)/2+1),nb_split, (const char **) filenames_sort, (const char *) o_file);
   }
+
 
   /* 4 - Clear */
   for(cpt = 0; cpt < nb_split; ++cpt){
