@@ -40,7 +40,7 @@ void projectV2_sortFiles(unsigned long nb_split,
  * @param[in] o_file Nome of the output file where sorted data are written.
  * @note It work in stream. Files are not fully loaded in memory.
  **/
-void projectV2_combMerge(unsigned long from_nb_split,
+void projectV2_combMerge(
 			 unsigned long nb_split,
 			 const char ** filenames_sort,
 			 const char * o_file);
