@@ -150,7 +150,7 @@ void projectV2_combMerge(unsigned long nb_split, const char ** filenames_sort, c
   if(pidf==-1){
     perror("Fail fork");
   }else if(pidf==0){
-    for(cpt = 1; cpt < startCt - 1; ++cpt){
+    for(cpt = 1; cpt < startCt; ++cpt){
 
       fprintf(stderr, "Merge sort %lu : %s + %s -> %s \n",
   	    cpt,
@@ -179,8 +179,10 @@ void projectV2_combMerge(unsigned long nb_split, const char ** filenames_sort, c
     }
     exit(0);
   }else{
-
-    for(cpt = startCt; cpt < nb_split - 1; ++cpt){
+    nb_print = snprintf(previous_name,
+  		      PROJECT_FILENAME_MAX_SIZE,
+  		      "%s", filenames_sort[startCt]);
+    for(cpt = startCt+1; cpt < nb_split - 1; ++cpt){
 
       fprintf(stderr, "Merge sort %lu : %s + %s -> %s \n",
   	    cpt,
