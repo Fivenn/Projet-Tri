@@ -177,12 +177,11 @@ void projectV2_combMerge(unsigned long nb_split, const char ** filenames_sort, c
         err(1, "Out of buffer (%s:%d)", __FILE__, __LINE__ );
       }
     }
-    exit(0);
   }else{
     nb_print = snprintf(previous_name,
   		      PROJECT_FILENAME_MAX_SIZE,
   		      "%s", filenames_sort[startCt]);
-    for(cpt = startCt+1; cpt < nb_split - 1; ++cpt){
+    for(cpt = startCt+1; cpt < nb_split; ++cpt){
 
       fprintf(stderr, "Merge sort %lu : %s + %s -> %s \n",
   	    cpt,
@@ -211,16 +210,32 @@ void projectV2_combMerge(unsigned long nb_split, const char ** filenames_sort, c
     }
   }
 
+  if(pidf == 0){
+    exit(0);
+  }else{
+    wait(NULL);
+  }
 
-  /* Last merge */
+  /* really Last merge */
+  nb_print = snprintf(previous_name,
+    PROJECT_FILENAME_MAX_SIZE,
+    "/tmp/tmp_split_%d_merge_%lu.txt",pidf, (startCt - 2));
+  if(nb_print >= PROJECT_FILENAME_MAX_SIZE){
+    err(1, "Out of buffer (%s:%d)", __FILE__, __LINE__ );
+  }
+
   fprintf(stderr, "Last merge sort : %s + %s -> %s \n",
-	  previous_name,
-	  filenames_sort[nb_split - 1],
+  	previous_name,
+	  current_name, //the son name
 	  o_file);
+
   SU_mergeSortedFiles(previous_name,
-		      filenames_sort[nb_split - 1],
+  current_name, //the son name
 		      o_file);
   SU_removeFile(previous_name);
-  SU_removeFile(filenames_sort[nb_split - 1]);
+  SU_removeFile(current_name);
+
+
+
 
 }
