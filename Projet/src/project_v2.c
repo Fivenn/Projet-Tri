@@ -150,6 +150,15 @@ void projectV2_combMerge(unsigned long nb_split, const char ** filenames_sort, c
   if(pidf==-1){
     perror("Fail fork");
   }else if(pidf==0){
+
+    char current_name [PROJECT_FILENAME_MAX_SIZE];
+    nb_print = snprintf(current_name,
+            PROJECT_FILENAME_MAX_SIZE,
+            "/tmp/tmp_split_%d_merge_%d.txt", getpid(), 0);
+    if(nb_print >= PROJECT_FILENAME_MAX_SIZE){
+      err(1, "Out of buffer (%s:%d)", __FILE__, __LINE__ );
+    }
+
     for(cpt = 1; cpt < startCt; ++cpt){
 
       fprintf(stderr, "Merge sort %lu : %s + %s -> %s \n",
@@ -219,7 +228,7 @@ void projectV2_combMerge(unsigned long nb_split, const char ** filenames_sort, c
   /* really Last merge */
   nb_print = snprintf(previous_name,
     PROJECT_FILENAME_MAX_SIZE,
-    "/tmp/tmp_split_%d_merge_%lu.txt",pidf, (startCt - 2));
+    "/tmp/tmp_split_%d_merge_%lu.txt",pidf, (nb_split - startCt - 2));
   if(nb_print >= PROJECT_FILENAME_MAX_SIZE){
     err(1, "Out of buffer (%s:%d)", __FILE__, __LINE__ );
   }
