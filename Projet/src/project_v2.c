@@ -108,7 +108,6 @@ void projectV2_sortFiles(unsigned long nb_split, const char ** filenames, const 
         perror("Fork failed");
         exit(1);
       }else if(pidf == 0){
-        sleep(10);
         fprintf(stderr, "Inner sort %lu: Array of %lu elem by %d\n", cpt, nb_elem, getpid());
 
         SORTALGO(nb_elem, values);
