@@ -77,16 +77,9 @@ void projectV2(const char * i_file, const char * o_file, unsigned long nb_split)
 
   /* 2 - Sort each file */
   projectV2_sortFiles(nb_split, (const char **) filenames, (const char **) filenames_sort);
-  /* 3 - Merge (two by two) */
-  pid_t pidMerge = fork();
-  if pidMerge == -1){
-    perror("Fail merge error");
-  }else if(pidMerge == 0){
-    projectV2_combMerge(0,((nb_split-nb_split%2)/2), (const char **) filenames_sort, (const char *) o_file);
-  }else{
-    projectV2_combMerge(((nb_split-nb_split%2)/2+1),nb_split, (const char **) filenames_sort, (const char *) o_file);
-  }
 
+  /* 3 - Merge (two by two) */
+  projectV2_combMerge(nb_split, (const char **) filenames_sort, (const char *) o_file);
 
   /* 4 - Clear */
   for(cpt = 0; cpt < nb_split; ++cpt){
@@ -116,7 +109,6 @@ void projectV2_sortFiles(unsigned long nb_split, const char ** filenames, const 
         perror("Fork failed");
         exit(1);
       }else if(pidf == 0){
-        sleep(10);
         fprintf(stderr, "Inner sort %lu: Array of %lu elem by %d\n", cpt, nb_elem, getpid());
 
         SORTALGO(nb_elem, values);
@@ -133,7 +125,7 @@ void projectV2_sortFiles(unsigned long nb_split, const char ** filenames, const 
 
 }
 
-void projectV2_combMerge(unsigned long from_nb_split,unsigned long nb_split, const char ** filenames_sort, const char * o_file){
+void projectV2_combMerge(unsigned long nb_split, const char ** filenames_sort, const char * o_file){
 
   int nb_print = 0;
   unsigned long cpt = 0;
@@ -142,7 +134,6 @@ void projectV2_combMerge(unsigned long from_nb_split,unsigned long nb_split, con
   nb_print = snprintf(previous_name,
 		      PROJECT_FILENAME_MAX_SIZE,
 		      "%s", filenames_sort[0]);
-
   if(nb_print >= PROJECT_FILENAME_MAX_SIZE){
     err(1, "Out of buffer (%s:%d)", __FILE__, __LINE__ );
   }
@@ -151,20 +142,18 @@ void projectV2_combMerge(unsigned long from_nb_split,unsigned long nb_split, con
   nb_print = snprintf(current_name,
 		      PROJECT_FILENAME_MAX_SIZE,
 		      "/tmp/tmp_split_%d_merge_%d.txt", getpid(), 0);
-
   if(nb_print >= PROJECT_FILENAME_MAX_SIZE){
     err(1, "Out of buffer (%s:%d)", __FILE__, __LINE__ );
   }
 
-  for(cpt = from_nb_split; cpt < nb_split - 1; ++cpt){
 
+  for(cpt = 1; cpt < nb_split - 1; ++cpt){
+    printf("filename_sort : %s\n previous_name : %s\n, current_name : %s\n\n", filenames_sort[cpt], previous_name, current_name);
     fprintf(stderr, "Merge sort %lu : %s + %s -> %s \n",
 	    cpt,
 	    previous_name,
 	    filenames_sort[cpt],
 	    current_name);
-
-
     SU_mergeSortedFiles(previous_name,
 			filenames_sort[cpt],
 			current_name);
