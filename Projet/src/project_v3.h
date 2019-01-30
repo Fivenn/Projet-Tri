@@ -11,7 +11,6 @@
 #include <math.h>
 #include <time.h>	/* time */
 #include <unistd.h>	/* Unix std */
-#include <pthread.h>
 #include "system_utils.h"
 
 /**

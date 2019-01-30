@@ -5,6 +5,7 @@
  */
 
 #include "project_v3.h"
+#include <pthread.h>
 
 /**
  * @brief Maximum length (in character) for a file name.
@@ -121,9 +122,9 @@ void projectV3_sortFiles(unsigned long nb_split, const char ** filenames, const 
   pthread_t* thread;
 
   thread=calloc(nb_split, sizeof(pthread_t));
-	T_InfoThread *infoT = NULL;
-	infoT->filenames = *filenames;
-	infoT->filenames_sort = *filenames_sort;
+	T_InfoThread infoT;
+	infoT.filenames = *filenames;
+	infoT.filenames_sort = *filenames_sort;
 
     for(cpt = 0; cpt < nb_split; ++cpt){
 			T_InfoThread *infoG = infoT;

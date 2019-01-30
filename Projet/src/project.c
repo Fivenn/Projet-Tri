@@ -4,6 +4,7 @@
 #include <time.h>	/* time */
 #include <unistd.h>	/* Unix std */
 #include <getopt.h>	/* Getopt */
+#include <pthread.h>
 
 #include "system_utils.h"
 #include "project_v0.h"
