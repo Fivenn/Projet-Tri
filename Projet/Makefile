@@ -1,7 +1,7 @@
-#/// @file 
-#/// @brief Generic Makefile for the System 2 project.                                                 
-#                                                                                                   
-#/// @detail If you just add some library files used by the project.c program, you have nothing to change to compile them if sources are in the ./src directory. To add a new binary, just add the name of the main file in the TARGETS variable.             
+#/// @file
+#/// @brief Generic Makefile for the System 2 project.
+#
+#/// @detail If you just add some library files used by the project.c program, you have nothing to change to compile them if sources are in the ./src directory. To add a new binary, just add the name of the main file in the TARGETS variable.
 
 
 #Nom du project
@@ -28,7 +28,7 @@ CC = gcc
 
 # Options
 CFLAGS = -O0 -g -W -Wall -Wextra -Wconversion -Werror -mtune=native  -march=native  -std=c99
-LDFLAGS = -lm -W -Wall -pedantic -L. -lm
+LDFLAGS = -pthread -lm -W -Wall -pedantic -L. -lm
 
 # Fichiers
 DOX = ${wildcard ${DOCPATH}/*.dox} # Sources
@@ -42,7 +42,7 @@ OBJ = ${SRC:%.c=%.o}	 	# Objets
 ##########
 
 # ALL
-all : ${BINTGTS} 
+all : ${BINTGTS}
 
 # CLEAN
 clean :
@@ -50,7 +50,7 @@ clean :
 	@echo Cleaning : object files
 	@echo --------
 	@echo
-	rm -f ${OBJ} 
+	rm -f ${OBJ}
 
 clean-doc :
 	@echo
@@ -79,7 +79,7 @@ clean-bin :
 distclean : clean clean-emacs clean-bin
 
 
-dirs : 
+dirs :
 	@for dir in ${DIRLIST} ;\
 	do \
 	    echo Creating directory : $${dir} ;\
@@ -96,7 +96,7 @@ dirs :
 # Binaires
 ${BIN}/${TARGETS} : ${${TARGETS}:%=${SOURCE}/%}
 
-${BIN}/% : $(OBJ) 
+${BIN}/% : $(OBJ)
 	@echo
 	@echo Linking bytecode : $@
 	@echo ----------------
@@ -107,14 +107,14 @@ ${BIN}/% : $(OBJ)
 	@echo
 
 # Regles generiques
-%.o : %.c %.h 
+%.o : %.c %.h
 	@echo
 	@echo Compiling $@
 	@echo --------
 	@echo
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Documentation 
+# Documentation
 doc : ${SRC} ${INT} ${DOX}
 	doxygen; doxygen
 
@@ -123,4 +123,3 @@ doc : ${SRC} ${INT} ${DOX}
 #############################
 
 .PHONY : all clean clean-doc clean-emacs clean-bin distclean doc
-
