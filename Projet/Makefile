@@ -27,7 +27,11 @@ BINTGTS = ${TARGETS:%=${BIN}/%}
 CC = gcc
 
 # Options
+<<<<<<< HEAD
 CFLAGS = -O0 -g -W -Wall -Wextra -Wconversion -Werror -mtune=native  -march=native  -std=c99
+=======
+CFLAGS =  -O0 -g -W -Wall -Wextra -Wconversion -Werror -mtune=native  -march=native  -std=c99
+>>>>>>> af4c30a9dfa067e974e741bb48dfb6af33f96e7e
 LDFLAGS = -pthread -lm -W -Wall -pedantic -L. -lm
 
 # Fichiers
