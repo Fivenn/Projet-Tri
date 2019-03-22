@@ -26,8 +26,8 @@ typedef struct infoThread{
 	unsigned long int nb_elem;
   unsigned long int cpt;
 	int* values;
-  const char * filenames;
-  const char * filenames_sort;
+  const char ** filenames;
+  const char ** filenames_sort;
 }T_InfoThread;
 
 
@@ -90,7 +90,7 @@ void projectV3(const char * i_file, const char * o_file, unsigned long nb_split)
   projectV3_sortFiles(nb_split, (const char **) filenames, (const char **) filenames_sort);
 
   /* 3 - Merge (two by two) */
-  projectV3_combMerge(nb_split, (const char **) filenames_sort, (const char *) o_file);
+  // projectV3_combMerge(nb_split, (const char **) filenames_sort, (const char *) o_file);
 
   /* 4 - Clear */
   for(cpt = 0; cpt < nb_split; ++cpt){
@@ -105,38 +105,33 @@ void projectV3(const char * i_file, const char * o_file, unsigned long nb_split)
 
 void *threadSort(void *arg){
   T_InfoThread *a = arg;
-  fprintf(stderr, "Inner sort %lu: Array of %lu elem by %d\n", a->nb_elem, a->cpt, getpid());
 
+  fprintf(stderr, "Inner sort %lu: Array of %lu elem\n", a->cpt, a->nb_elem);
   SORTALGO(a->nb_elem, a->values);
-
-  SU_saveFile(&(a->filenames_sort[a->cpt]), a->nb_elem, a->values);
+  SU_saveFile(a->filenames_sort[a->cpt], a->nb_elem, a->values);
   free(a->values);
 
   pthread_exit(NULL);
 }
 
 void projectV3_sortFiles(unsigned long nb_split, const char ** filenames, const char ** filenames_sort){
-  printf("%d\n", getpid());
-
   unsigned long cpt = 0;
 	pthread_t* thread = (pthread_t*)malloc((long unsigned int)nb_split * sizeof(pthread_t));
 
-	T_InfoThread *infoT = (T_InfoThread*)malloc(sizeof(T_InfoThread));
-	infoT->filenames = *filenames;
-	infoT->filenames_sort = *filenames_sort;
-
     for(cpt = 0; cpt < nb_split; ++cpt){
-			T_InfoThread *infoG = infoT;
+      T_InfoThread *infoT = (T_InfoThread*)malloc(sizeof(T_InfoThread));
+
       int * values = NULL;
       unsigned long nb_elem = SU_loadFile(filenames[cpt], &values);
-
-			infoG->nb_elem = nb_elem;
-			infoG->cpt = cpt;
-			infoG->values = values;
-
       SU_removeFile(filenames[cpt]);
 
-      if (pthread_create(&thread[cpt], NULL, threadSort,(void *)infoG) != 0) {
+			infoT->nb_elem = nb_elem;
+			infoT->cpt = cpt;
+			infoT->values = values;
+      infoT->filenames = filenames;
+	    infoT->filenames_sort = filenames_sort;
+
+      if (pthread_create(&thread[cpt], NULL, threadSort,infoT) != 0) {
         perror("pthread_create");
         exit(EXIT_FAILURE);
       }
