@@ -141,7 +141,7 @@ void projectV2_combMerge(unsigned long nb_split, const char ** filenames_sort, c
   projectV2_combMergeFork(filenames_sort, tmp_file2, (nb_split/2)+1, nb_split);
   sleep(10);
   waitpid(pidT, 0, 0);
-  fprintf(stderr, "Last merge fork sort : %s + %s -> %s \n",
+  fprintf(stderr, "Last merge sort : %s + %s -> %s \n",
 	  tmp_file1,
 	  tmp_file2,
 	  o_file);
