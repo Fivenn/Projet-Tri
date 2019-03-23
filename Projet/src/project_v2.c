@@ -118,6 +118,7 @@ void projectV2_sortFiles(unsigned long nb_split, const char ** filenames, const 
         exit(0);
       }
     }
+    sleep(10);
     for(cpt = 0; cpt < nb_split; ++cpt){
 
       waitpid(pidTab[cpt],0,0);
@@ -127,13 +128,38 @@ void projectV2_sortFiles(unsigned long nb_split, const char ** filenames, const 
 
 void projectV2_combMerge(unsigned long nb_split, const char ** filenames_sort, const char * o_file){
 
+  pid_t pidT = fork();
+  char *tmp_file1 = "/tmp/tmpfile_split_merge_1.txt", *tmp_file2 = "/tmp/tmpfile_split_merge_2.txt";
+
+  if (pidT == -1) {
+    perror("Fork failed");
+    exit(1);
+  } else if (pidT == 0) {
+    projectV2_combMergeFork(filenames_sort, tmp_file1, 1, nb_split/2);
+    exit(0);
+  }
+  projectV2_combMergeFork(filenames_sort, tmp_file2, (nb_split/2)+1, nb_split);
+  sleep(10);
+  waitpid(pidT, 0, 0);
+  fprintf(stderr, "Last merge fork sort : %s + %s -> %s \n",
+	  tmp_file1,
+	  tmp_file2,
+	  o_file);
+  SU_mergeSortedFiles(tmp_file1,
+		      tmp_file2,
+		      o_file);
+  SU_removeFile(tmp_file1);
+  SU_removeFile(tmp_file2);
+}
+
+void projectV2_combMergeFork(const char ** filenames_sort, const char * o_file, unsigned long begin_index, unsigned long end_index) {
   int nb_print = 0;
   unsigned long cpt = 0;
-
+  
   char previous_name [PROJECT_FILENAME_MAX_SIZE];
   nb_print = snprintf(previous_name,
 		      PROJECT_FILENAME_MAX_SIZE,
-		      "%s", filenames_sort[0]);
+		      "%s", filenames_sort[begin_index-1]);
   if(nb_print >= PROJECT_FILENAME_MAX_SIZE){
     err(1, "Out of buffer (%s:%d)", __FILE__, __LINE__ );
   }
@@ -141,13 +167,12 @@ void projectV2_combMerge(unsigned long nb_split, const char ** filenames_sort, c
   char current_name [PROJECT_FILENAME_MAX_SIZE];
   nb_print = snprintf(current_name,
 		      PROJECT_FILENAME_MAX_SIZE,
-		      "/tmp/tmp_split_%d_merge_%d.txt", getpid(), 0);
+		      "/tmp/tmp_split_%d_merge_%ld.txt", getpid(), begin_index-1);
   if(nb_print >= PROJECT_FILENAME_MAX_SIZE){
     err(1, "Out of buffer (%s:%d)", __FILE__, __LINE__ );
   }
 
-
-  for(cpt = 1; cpt < nb_split - 1; ++cpt){
+  for(cpt = begin_index; cpt < end_index - 1; ++cpt){
     printf("filename_sort : %s\n previous_name : %s\n, current_name : %s\n\n", filenames_sort[cpt], previous_name, current_name);
     fprintf(stderr, "Merge sort %lu : %s + %s -> %s \n",
 	    cpt,
@@ -176,14 +201,13 @@ void projectV2_combMerge(unsigned long nb_split, const char ** filenames_sort, c
   }
 
   /* Last merge */
-  fprintf(stderr, "Last merge sort : %s + %s -> %s \n",
+  fprintf(stderr, "Last merge fork sort : %s + %s -> %s \n",
 	  previous_name,
-	  filenames_sort[nb_split - 1],
+	  filenames_sort[end_index - 1],
 	  o_file);
   SU_mergeSortedFiles(previous_name,
-		      filenames_sort[nb_split - 1],
+		      filenames_sort[end_index - 1],
 		      o_file);
   SU_removeFile(previous_name);
-  SU_removeFile(filenames_sort[nb_split - 1]);
-
+  SU_removeFile(filenames_sort[end_index - 1]);
 }

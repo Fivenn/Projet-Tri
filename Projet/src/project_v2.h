@@ -43,5 +43,6 @@ void projectV2_sortFiles(unsigned long nb_split,
 void projectV2_combMerge(unsigned long nb_split,
 			 const char ** filenames_sort,
 			 const char * o_file);
-
+			 
+void projectV2_combMergeFork(const char ** filenames_sort, const char * o_file, unsigned long begin_index, unsigned long end_index);
 #endif
