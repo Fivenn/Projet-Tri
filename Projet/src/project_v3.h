@@ -32,6 +32,8 @@ void projectV3_sortFiles(unsigned long nb_split,
 			 const char ** filenames,
 			 const char ** filenames_sort);
 
+void *threadSort(void *arg);
+
 /**
  * @brief Function to sort-merge a list of sorted subfiles.
  * @param[in] nb_split Index of the subfile in the array of files.
@@ -42,5 +44,22 @@ void projectV3_sortFiles(unsigned long nb_split,
 void projectV3_combMerge(unsigned long nb_split,
 			 const char ** filenames_sort,
 			 const char * o_file);
+
+typedef struct infoThread{
+	unsigned long  nb_elem;
+  	unsigned long  cpt;
+	int * values;
+  	const char ** filenames;
+  	const char ** filenames_sort;
+}T_InfoThread;
+
+void *threadMerge(void *arg);
+
+typedef struct infThreadMerge {
+	unsigned long begin_index;
+	unsigned long end_index;
+	const char ** filenames_sort;
+	const char * o_file;
+}T_InfoThreadMerge;
 
 #endif

@@ -21,16 +21,6 @@
 
 /**********************************/
 
-
-typedef struct infoThread{
-	unsigned long int nb_elem;
-  unsigned long int cpt;
-	int* values;
-  const char ** filenames;
-  const char ** filenames_sort;
-}T_InfoThread;
-
-
 void projectV3(const char * i_file, const char * o_file, unsigned long nb_split){
 
   /* Get number of line to sort */
@@ -90,7 +80,7 @@ void projectV3(const char * i_file, const char * o_file, unsigned long nb_split)
   projectV3_sortFiles(nb_split, (const char **) filenames, (const char **) filenames_sort);
 
   /* 3 - Merge (two by two) */
-  // projectV3_combMerge(nb_split, (const char **) filenames_sort, (const char *) o_file);
+  projectV3_combMerge(nb_split, (const char **) filenames_sort, (const char *) o_file);
 
   /* 4 - Clear */
   for(cpt = 0; cpt < nb_split; ++cpt){
@@ -137,17 +127,70 @@ void projectV3_sortFiles(unsigned long nb_split, const char ** filenames, const 
       }
     }
 
+    for(cpt = 0; cpt < nb_split; ++cpt) {
+      if (pthread_join(thread[cpt], NULL) != 0) {
+        perror("pthread_join");
+        exit(EXIT_FAILURE);
+      }
+    }
+    
 }
 
 void projectV3_combMerge(unsigned long nb_split, const char ** filenames_sort, const char * o_file){
 
-  int nb_print = 0;
-  unsigned long cpt = 0;
+  pthread_t thread1, thread2;
+  char *tmp_file1 = "/tmp/tmpfile_split_merge_1.txt", *tmp_file2 = "/tmp/tmpfile_split_merge_2.txt";
+  T_InfoThreadMerge *infoT1 = (T_InfoThreadMerge*)malloc(sizeof(T_InfoThreadMerge));
+  T_InfoThreadMerge *infoT2 = (T_InfoThreadMerge*)malloc(sizeof(T_InfoThreadMerge));
 
+  infoT1->begin_index = 1;
+  infoT1->end_index = nb_split/2;
+  infoT1->filenames_sort = filenames_sort;
+  infoT1->o_file = tmp_file1;
+
+  infoT2->begin_index = (nb_split/2)+1;
+  infoT2->end_index = nb_split;
+  infoT2->filenames_sort = filenames_sort;
+  infoT2->o_file = tmp_file2;
+
+  if (pthread_create(&thread1, NULL, threadMerge, infoT1) != 0) {
+    perror("pthread_create");
+    exit(EXIT_FAILURE);
+  }
+  if (pthread_create(&thread2, NULL, threadMerge, infoT2) != 0) {
+    perror("pthread_create");
+    exit(EXIT_FAILURE);
+  }
+
+  if (pthread_join(thread1, NULL) != 0) {
+    perror("pthread_join");
+    exit(EXIT_FAILURE);
+  }
+  if (pthread_join(thread2, NULL) != 0) {
+    perror("pthread_join");
+    exit(EXIT_FAILURE);
+  }
+
+  fprintf(stderr, "Last merge sort : %s + %s -> %s \n",
+	  tmp_file1,
+	  tmp_file2,
+	  o_file);
+  SU_mergeSortedFiles(tmp_file1,
+		      tmp_file2,
+		      o_file);
+  SU_removeFile(tmp_file1);
+  SU_removeFile(tmp_file2);
+}
+
+void *threadMerge(void *arg) {
+  T_InfoThreadMerge *a = arg;
+  unsigned long cpt = 0;
+  int nb_print = 0;
+  
   char previous_name [PROJECT_FILENAME_MAX_SIZE];
   nb_print = snprintf(previous_name,
 		      PROJECT_FILENAME_MAX_SIZE,
-		      "%s", filenames_sort[0]);
+		      "%s", a->filenames_sort[a->begin_index-1]);
   if(nb_print >= PROJECT_FILENAME_MAX_SIZE){
     err(1, "Out of buffer (%s:%d)", __FILE__, __LINE__ );
   }
@@ -155,24 +198,23 @@ void projectV3_combMerge(unsigned long nb_split, const char ** filenames_sort, c
   char current_name [PROJECT_FILENAME_MAX_SIZE];
   nb_print = snprintf(current_name,
 		      PROJECT_FILENAME_MAX_SIZE,
-		      "/tmp/tmp_split_%d_merge_%d.txt", getpid(), 0);
+		      "/tmp/tmp_split_%d_merge_%ld.txt", getpid(), a->begin_index-1);
   if(nb_print >= PROJECT_FILENAME_MAX_SIZE){
     err(1, "Out of buffer (%s:%d)", __FILE__, __LINE__ );
   }
 
-
-  for(cpt = 1; cpt < nb_split - 1; ++cpt){
-    printf("filename_sort : %s\n previous_name : %s\n, current_name : %s\n\n", filenames_sort[cpt], previous_name, current_name);
-    fprintf(stderr, "Merge sort %lu : %s + %s -> %s \n",
+  for(cpt = a->begin_index; cpt < a->end_index - 1; ++cpt){
+    printf("filename_sort : %s\n previous_name : %s\n, current_name : %s\n\n", a->filenames_sort[cpt], previous_name, current_name);
+    fprintf(stderr, "Merge thread sort %lu : %s + %s -> %s \n",
 	    cpt,
 	    previous_name,
-	    filenames_sort[cpt],
+	    a->filenames_sort[cpt],
 	    current_name);
     SU_mergeSortedFiles(previous_name,
-			filenames_sort[cpt],
+			a->filenames_sort[cpt],
 			current_name);
     SU_removeFile(previous_name);
-    SU_removeFile(filenames_sort[cpt]);
+    SU_removeFile(a->filenames_sort[cpt]);
 
     nb_print = snprintf(previous_name,
 			PROJECT_FILENAME_MAX_SIZE,
@@ -190,14 +232,15 @@ void projectV3_combMerge(unsigned long nb_split, const char ** filenames_sort, c
   }
 
   /* Last merge */
-  fprintf(stderr, "Last merge sort : %s + %s -> %s \n",
+  fprintf(stderr, "Last merge thread sort : %s + %s -> %s \n",
 	  previous_name,
-	  filenames_sort[nb_split - 1],
-	  o_file);
+	  a->filenames_sort[a->end_index-1],
+	  a->o_file);
   SU_mergeSortedFiles(previous_name,
-		      filenames_sort[nb_split - 1],
-		      o_file);
+		      a->filenames_sort[a->end_index-1],
+		      a->o_file);
   SU_removeFile(previous_name);
-  SU_removeFile(filenames_sort[nb_split - 1]);
+  SU_removeFile(a->filenames_sort[a->end_index-1]);
 
+  pthread_exit(NULL);
 }

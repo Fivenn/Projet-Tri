@@ -174,7 +174,7 @@ void projectV2_combMergeFork(const char ** filenames_sort, const char * o_file, 
 
   for(cpt = begin_index; cpt < end_index - 1; ++cpt){
     printf("filename_sort : %s\n previous_name : %s\n, current_name : %s\n\n", filenames_sort[cpt], previous_name, current_name);
-    fprintf(stderr, "Merge sort %lu : %s + %s -> %s \n",
+    fprintf(stderr, "Merge fork sort %lu : %s + %s -> %s \n",
 	    cpt,
 	    previous_name,
 	    filenames_sort[cpt],
